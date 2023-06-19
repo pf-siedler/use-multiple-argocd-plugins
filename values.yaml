@@ -1,0 +1,39 @@
+server:
+  containerPorts:
+    # v5.25.0 の default value では 8082 になっている(v5.26.3 以降で直るらしい)
+    metrics: 8083
+
+repoServer:
+  extraContainers:
+  - name: cmp
+    command: [ /var/run/argocd/argocd-cmp-server ]
+    image: busybox
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 999
+    volumeMounts:
+    - mountPath: /var/run/argocd
+      name: var-files
+    - mountPath: /home/argocd/cmp-server/plugins
+      name: plugins
+    - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+      subPath: plugin.yaml
+      name: cmp-plugin
+  - name: cmp2
+    command: [ /var/run/argocd/argocd-cmp-server ]
+    image: busybox
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 999
+    volumeMounts:
+    - mountPath: /var/run/argocd
+      name: var-files
+    - mountPath: /home/argocd/cmp-server/plugins
+      name: plugins
+    - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+      subPath: plugin2.yaml
+      name: cmp-plugin
+  volumes:
+  - configMap:
+      name: cmp-plugin
+    name: cmp-plugin
